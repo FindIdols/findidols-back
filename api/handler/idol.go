@@ -10,6 +10,7 @@ import (
 	"github.com/FindIdols/findidols-back/entity"
 	"github.com/FindIdols/findidols-back/usecase/bankaccount"
 	"github.com/FindIdols/findidols-back/usecase/idol"
+	"github.com/FindIdols/findidols-back/usecase/pricecontent"
 	"github.com/FindIdols/findidols-back/usecase/socialnetworks"
 	"github.com/FindIdols/findidols-back/usecase/user"
 	"github.com/FindIdols/findidols-back/usecase/video"
@@ -28,28 +29,27 @@ func createIdol(
 		errorMessage := "Error adding idol"
 
 		var input struct {
-			Email        string  `json:"email"`
-			Phone        string  `json:"phone"`
-			FirstName    string  `json:"first_name"`
-			LastName     string  `json:"last_name"`
-			Genre        string  `json:"genre"`
-			Category     string  `json:"category"`
-			ArtisticName string  `json:"artistic_name"`
-			Profession   string  `json:"profession"`
-			Description  string  `json:"description"`
-			Value        float64 `json:"value"`
-			Deadline     int16   `json:"deadline"`
-			BankName     string  `json:"bankName"`
-			TypeAccount  string  `json:"accountType"`
-			Agency       string  `json:"agency"`
-			Operation    string  `json:"operation"`
-			Account      string  `json:"account"`
-			Digit        string  `json:"digit"`
-			Youtube      string  `json:"youtube"`
-			Instagram    string  `json:"instagram"`
-			Twitter      string  `json:"twitter"`
-			TikTok       string  `json:"tiktok"`
-			Secret       string  `json:"secret"`
+			Email        string `json:"email"`
+			Phone        string `json:"phone"`
+			FirstName    string `json:"first_name"`
+			LastName     string `json:"last_name"`
+			Genre        string `json:"genre"`
+			Category     string `json:"category"`
+			ArtisticName string `json:"artistic_name"`
+			Profession   string `json:"profession"`
+			Description  string `json:"description"`
+			Deadline     int16  `json:"deadline"`
+			BankName     string `json:"bankName"`
+			TypeAccount  string `json:"accountType"`
+			Agency       string `json:"agency"`
+			Operation    string `json:"operation"`
+			Account      string `json:"account"`
+			Digit        string `json:"digit"`
+			Youtube      string `json:"youtube"`
+			Instagram    string `json:"instagram"`
+			Twitter      string `json:"twitter"`
+			TikTok       string `json:"tiktok"`
+			Secret       string `json:"secret"`
 		}
 
 		err := json.NewDecoder(r.Body).Decode(&input)
@@ -121,7 +121,6 @@ func createIdol(
 			input.ArtisticName,
 			input.Profession,
 			input.Description,
-			input.Value,
 			input.Deadline,
 			user.ID.String(),
 			socialNetworksID.String(),
@@ -151,7 +150,12 @@ func createIdol(
 	})
 }
 
-func getIdol(service idol.UseCase, socialNetworksService socialnetworks.UseCase, videoService video.UseCase) http.Handler {
+func getIdol(
+	service idol.UseCase,
+	socialNetworksService socialnetworks.UseCase,
+	videoService video.UseCase,
+	pricePerContentService pricecontent.UseCase,
+) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		errorMessage := "Error reading idol"
@@ -176,6 +180,15 @@ func getIdol(service idol.UseCase, socialNetworksService socialnetworks.UseCase,
 
 		if err != nil {
 			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(errorMessage))
+			return
+		}
+
+		priceContentUUID, err := uuid.Parse(dataIdol.PriceContentID)
+		priceContent, err := pricePerContentService.GetPricePerContent(priceContentUUID)
+
+		if err != nil && err != entity.ErrNotFound {
+			w.WriteHeader(http.StatusInternalServerError)
 			w.Write([]byte(errorMessage))
 			return
 		}
@@ -228,13 +241,13 @@ func getIdol(service idol.UseCase, socialNetworksService socialnetworks.UseCase,
 			ArtisticName: dataIdol.ArtisticName,
 			Description:  dataIdol.Description,
 			Profession:   dataIdol.Profession,
-			Value:        dataIdol.Value,
 			Deadline:     dataIdol.Deadline,
 			DenyContent:  dataIdol.DenyContent,
 			Youtube:      dataSocialNetworks.Youtube,
 			Instagram:    dataSocialNetworks.Instagram,
 			Twitter:      dataSocialNetworks.Twitter,
 			Tiktok:       dataSocialNetworks.TikTok,
+			Prices:       priceContent,
 			VideoURL:     videos,
 		}
 		if err := json.NewEncoder(w).Encode(toJ); err != nil {
@@ -244,7 +257,7 @@ func getIdol(service idol.UseCase, socialNetworksService socialnetworks.UseCase,
 	})
 }
 
-func getIdols(service idol.UseCase) http.Handler {
+func getIdols(service idol.UseCase, pricePerContentService pricecontent.UseCase) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		errorMessage := "Error reading idols"
@@ -253,6 +266,22 @@ func getIdols(service idol.UseCase) http.Handler {
 		var err error
 
 		data, err = service.GetIdols()
+
+		if err != nil {
+			fmt.Println("erro pegar idolos")
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(errorMessage))
+			return
+		}
+
+		pricesContent, err := pricePerContentService.GetPricesPerContent()
+
+		if err != nil {
+			fmt.Println("erro pegar preços")
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte(errorMessage))
+			return
+		}
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -272,12 +301,12 @@ func getIdols(service idol.UseCase) http.Handler {
 
 		var toJ []*presenter.Idol
 
-		for _, d := range data {
+		for idx, d := range data {
 			toJ = append(toJ, &presenter.Idol{
 				ID:           d.ID,
 				ArtisticName: d.ArtisticName,
 				Description:  d.Description,
-				Value:        d.Value,
+				Prices:       pricesContent[idx],
 			})
 		}
 
@@ -303,6 +332,7 @@ func MakeIdolHandlers(
 	SocialNetworksService socialnetworks.UseCase,
 	VideoService video.UseCase,
 	bankAccountService bankaccount.UseCase,
+	pricePerContentService pricecontent.UseCase,
 ) {
 	r.Handle("/", n.With(
 		negroni.Wrap(endpointTest()),
@@ -313,10 +343,10 @@ func MakeIdolHandlers(
 	)).Methods("POST", "OPTIONS").Name("createIdol")
 
 	r.Handle("/v1/idol/{id}", n.With(
-		negroni.Wrap(getIdol(IdolService, SocialNetworksService, VideoService)),
+		negroni.Wrap(getIdol(IdolService, SocialNetworksService, VideoService, pricePerContentService)),
 	)).Methods("GET", "OPTIONS").Name("getIdol")
 
 	r.Handle("/v1/idols", n.With(
-		negroni.Wrap(getIdols(IdolService)),
+		negroni.Wrap(getIdols(IdolService, pricePerContentService)),
 	)).Methods("GET", "OPTIONS").Name("getIdols")
 }

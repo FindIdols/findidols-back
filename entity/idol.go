@@ -12,10 +12,10 @@ type Idol struct {
 	ArtisticName     string
 	Profession       string
 	Description      string
-	Value            float64
 	Deadline         int16
 	DenyContent      string
 	UserID           string
+	PriceContentID   string
 	SocialNetworksID string
 	BankAccountID    string
 	CreatedAt        time.Time
@@ -26,7 +26,6 @@ func NewIdol(
 	artisticName,
 	profession,
 	description string,
-	value float64,
 	deadline int16,
 	denyContent,
 	userID,
@@ -38,7 +37,6 @@ func NewIdol(
 		ArtisticName:     strings.TrimSpace(artisticName),
 		Profession:       strings.TrimSpace(profession),
 		Description:      description,
-		Value:            value,
 		Deadline:         deadline,
 		DenyContent:      denyContent,
 		UserID:           userID,
@@ -69,10 +67,6 @@ func (u *Idol) Validate() error {
 	}
 
 	if u.Description == "" {
-		return ErrInvalidEntity
-	}
-
-	if u.Value == 0 {
 		return ErrInvalidEntity
 	}
 

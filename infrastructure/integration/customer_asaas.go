@@ -13,16 +13,17 @@ import (
 
 func CreateCustomer(customer entity.Customer) ([]byte, error) {
 
-	customerJSON, err := json.Marshal(map[string]string{
-		"name":          customer.Name,
-		"email":         customer.Email,
-		"phone":         customer.Phone,
-		"mobilePhone":   customer.Phone,
-		"cpfCnpj":       customer.CPF,
-		"postalCode":    customer.CEP,
-		"address":       customer.AddressName,
-		"addressNumber": customer.AddresNumber,
-		"complement":    customer.AddressComplment,
+	customerJSON, err := json.Marshal(map[string]interface{}{
+		"name":                 customer.Name,
+		"email":                customer.Email,
+		"phone":                customer.Phone,
+		"mobilePhone":          customer.Phone,
+		"cpfCnpj":              customer.CPF,
+		"postalCode":           customer.CEP,
+		"address":              customer.AddressName,
+		"addressNumber":        customer.AddresNumber,
+		"complement":           customer.AddressComplment,
+		"notificationDisabled": false,
 	})
 
 	responseBody := bytes.NewBuffer(customerJSON)

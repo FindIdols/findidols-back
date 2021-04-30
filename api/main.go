@@ -16,6 +16,7 @@ import (
 	"github.com/FindIdols/findidols-back/usecase/bankaccount"
 	"github.com/FindIdols/findidols-back/usecase/idol"
 	"github.com/FindIdols/findidols-back/usecase/order"
+	"github.com/FindIdols/findidols-back/usecase/pricecontent"
 	"github.com/FindIdols/findidols-back/usecase/socialnetworks"
 	"github.com/FindIdols/findidols-back/usecase/user"
 	"github.com/FindIdols/findidols-back/usecase/video"
@@ -54,6 +55,9 @@ func main() {
 	idolRepo := repository.NewIdolPostgres(db)
 	idolService := idol.NewService(idolRepo)
 
+	pricePerContentRepo := repository.NewPriceContentPostgres(db)
+	pricePerContentService := pricecontent.NewService(pricePerContentRepo)
+
 	videoRepo := repository.NewVideoPostgres(db)
 	videoService := video.NewService(videoRepo)
 
@@ -71,7 +75,7 @@ func main() {
 	)
 
 	handler.MakeOrderHandlers(r, *n, orderService, userService)
-	handler.MakeIdolHandlers(r, *n, idolService, userService, socialNetworksService, videoService, bankAccountService)
+	handler.MakeIdolHandlers(r, *n, idolService, userService, socialNetworksService, videoService, bankAccountService, pricePerContentService)
 	handler.MakeBillingHandlers(r, *n)
 
 	http.Handle("/", r)

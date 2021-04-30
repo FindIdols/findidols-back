@@ -22,9 +22,9 @@ func NewIdolPostgres(db *sql.DB) *IdolPostgres {
 //Create a idol
 func (r *IdolPostgres) Create(i *entity.Idol) (entity.ID, error) {
 	stmt, err := r.db.Prepare(`
-		insert into idols (idol_id, artistic_name, profession, description, value, 
+		insert into idols (idol_id, artistic_name, profession, description, 
 		deadline, user_id, social_networks_id, bank_account_id, created_at) 
-		values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`)
+		values($1,$2,$3,$4,$5,$6,$7,$8,$9)`)
 
 	if err != nil {
 		return i.ID, err
@@ -34,7 +34,6 @@ func (r *IdolPostgres) Create(i *entity.Idol) (entity.ID, error) {
 		i.ArtisticName,
 		i.Profession,
 		i.Description,
-		i.Value,
 		i.Deadline,
 		i.UserID,
 		i.SocialNetworksID,
@@ -57,7 +56,7 @@ func (r *IdolPostgres) Create(i *entity.Idol) (entity.ID, error) {
 //GetIdol info
 func (r *IdolPostgres) GetIdol(id entity.ID) (*entity.Idol, error) {
 	stmt, err := r.db.Prepare(`select idol_id, artistic_name, profession, description, 
-	value, deadline, deny_content, user_id, social_networks_id, created_at from idols where idol_id = $1`)
+	deadline, deny_content, user_id, price_per_content_id, social_networks_id, created_at from idols where idol_id = $1`)
 
 	if err != nil {
 		return nil, err
@@ -76,10 +75,10 @@ func (r *IdolPostgres) GetIdol(id entity.ID) (*entity.Idol, error) {
 			&idol.ArtisticName,
 			&idol.Profession,
 			&idol.Description,
-			&idol.Value,
 			&idol.Deadline,
 			&idol.DenyContent,
 			&idol.UserID,
+			&idol.PriceContentID,
 			&idol.SocialNetworksID,
 			&idol.CreatedAt,
 		)
@@ -90,8 +89,7 @@ func (r *IdolPostgres) GetIdol(id entity.ID) (*entity.Idol, error) {
 
 //GetIdols info
 func (r *IdolPostgres) GetIdols() ([]*entity.Idol, error) {
-	stmt, err := r.db.Prepare(`select idol_id, artistic_name, description, 
-	value from idols`)
+	stmt, err := r.db.Prepare(`select idol_id, artistic_name, description, price_per_content_id from idols`)
 
 	if err != nil {
 		return nil, err
@@ -111,7 +109,7 @@ func (r *IdolPostgres) GetIdols() ([]*entity.Idol, error) {
 			&idol.ID,
 			&idol.ArtisticName,
 			&idol.Description,
-			&idol.Value,
+			&idol.PriceContentID,
 		)
 
 		if err != nil {

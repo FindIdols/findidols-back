@@ -27,7 +27,6 @@ type UseCase interface {
 		artisticName string,
 		profession string,
 		description string,
-		value float64,
 		deadline int16,
 		userID string,
 		socialNetworksID string,
