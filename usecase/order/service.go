@@ -18,7 +18,7 @@ func NewService(r Repository) *Service {
 
 //CreateOrder create a order
 func (s *Service) CreateOrder(
-	u *entity.User,
+	userId string,
 	usage string,
 	subject string,
 	instruction string,
@@ -27,7 +27,7 @@ func (s *Service) CreateOrder(
 ) (*entity.Order, error) {
 
 	c, err := entity.NewContent(usage, subject, instruction)
-	o, err := entity.NewOrder(*u, *c, termsOfUse, idolID)
+	o, err := entity.NewOrder(userId, *c, termsOfUse, idolID)
 
 	if err != nil {
 		return o, err

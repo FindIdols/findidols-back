@@ -24,7 +24,7 @@ type Repository interface {
 type UseCase interface {
 	GetOrder(id entity.ID) (*entity.Order, error)
 	CreateOrder(
-		user *entity.User,
+		userId string,
 		usage string,
 		subject string,
 		instruction string,

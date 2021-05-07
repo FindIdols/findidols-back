@@ -16,13 +16,13 @@ type Order struct {
 }
 
 //NewOrder create a new order
-func NewOrder(user User, content Content, termsOfUse bool, idolID string) (*Order, error) {
+func NewOrder(userId string, content Content, termsOfUse bool, idolID string) (*Order, error) {
 	o := &Order{
 		ID:         NewID(),
 		Content:    content,
 		TermsOfUse: termsOfUse,
 		IdolID:     idolID,
-		UserID:     user.ID.String(),
+		UserID:     userId,
 		CreatedAt:  time.Now(),
 	}
 
