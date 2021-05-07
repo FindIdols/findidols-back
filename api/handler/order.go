@@ -20,12 +20,7 @@ func createOrder(orderService order.UseCase, userService user.UseCase) http.Hand
 		errorMessage := "Error adding order"
 
 		var input struct {
-			Email       string `json:"email"`
-			Phone       string `json:"phone"`
-			FirstName   string `json:"firstName"`
-			LastName    string `json:"lastName"`
-			Genre       string `json:"genre"`
-			Category    string `json:"category"`
+			UserId      string `json:"userId"`
 			Usage       string `json:"usage"`
 			Subject     string `json:"subject"`
 			Instruction string `json:"instruction"`
@@ -43,27 +38,8 @@ func createOrder(orderService order.UseCase, userService user.UseCase) http.Hand
 			return
 		}
 
-		fmt.Println(input)
-
-		user, err := userService.Create(
-			input.FirstName,
-			input.LastName,
-			input.Email,
-			input.Phone,
-			input.Genre,
-			input.Category,
-		)
-
-		if err != nil {
-			fmt.Println("erro criacao user")
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte(errorMessage))
-			return
-		}
-
 		order, err := orderService.CreateOrder(
-			user,
+			input.UserId,
 			input.Usage,
 			input.Subject,
 			input.Instruction,
@@ -80,7 +56,7 @@ func createOrder(orderService order.UseCase, userService user.UseCase) http.Hand
 		}
 
 		toJ := &presenter.Order{
-			ID:          user.ID,
+			ID:          order.ID,
 			OrderNumber: order.OrderNumber,
 		}
 
