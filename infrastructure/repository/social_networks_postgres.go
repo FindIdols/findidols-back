@@ -51,7 +51,7 @@ func (r *SocialNetworksPostgres) Create(sn *entity.SocialNetworks) (entity.ID, e
 
 //GetSocialNetworks a data
 func (r *SocialNetworksPostgres) GetSocialNetworks(id entity.ID) (*entity.SocialNetworks, error) {
-	stmt, err := r.db.Prepare(`select social_networks_id, youtube, instagram, twitter, tiktok 
+	stmt, err := r.db.Prepare(`select social_networks_id, youtube, twitch, nimo, instagram, twitter, tiktok 
 	from social_networks where social_networks_id = $1`)
 
 	if err != nil {
@@ -69,6 +69,8 @@ func (r *SocialNetworksPostgres) GetSocialNetworks(id entity.ID) (*entity.Social
 		err = rows.Scan(
 			&socialNetworks.ID,
 			&socialNetworks.Youtube,
+			&socialNetworks.Twitch,
+			&socialNetworks.Nimo,
 			&socialNetworks.Instagram,
 			&socialNetworks.Twitter,
 			&socialNetworks.TikTok,

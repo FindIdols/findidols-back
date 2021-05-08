@@ -11,6 +11,8 @@ import (
 type SocialNetworks struct {
 	ID        ID
 	Youtube   string
+	Twitch    string
+	Nimo      string
 	Instagram string
 	Twitter   string
 	TikTok    string
