@@ -244,6 +244,8 @@ func getIdol(
 			Deadline:     dataIdol.Deadline,
 			DenyContent:  dataIdol.DenyContent,
 			Youtube:      dataSocialNetworks.Youtube,
+			Twitch:       dataSocialNetworks.Twitch,
+			Nimo:         dataSocialNetworks.Nimo,
 			Instagram:    dataSocialNetworks.Instagram,
 			Twitter:      dataSocialNetworks.Twitter,
 			Tiktok:       dataSocialNetworks.TikTok,

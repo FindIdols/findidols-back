@@ -21,6 +21,8 @@ type IdolInformation struct {
 	DenyContent  string               `json:"denyContent"`
 	Profession   string               `json:"profession"`
 	Youtube      string               `json:"youtube"`
+	Twitch       string               `json:"twitch"`
+	Nimo         string               `json:"nimo"`
 	Instagram    string               `json:"instagram"`
 	Twitter      string               `json:"twitter"`
 	Tiktok       string               `json:"tiktok"`
