@@ -34,10 +34,7 @@ func CreateCustomer(customer entity.Customer) ([]byte, error) {
 	}
 
 	req, err := http.NewRequest("POST", "https://www.asaas.com/api/v3/customers", responseBody)
-	req.Header.Set("access_token", "36d24f6cb5871a629a727deb0f652ed20f6be4d9bebb4b28ca50b9749dfc2e13")
-
-	// req, err := http.NewRequest("POST", "https://sandbox.asaas.com/api/v3/customers", responseBody)
-	// req.Header.Set("access_token", "7fde62b9f2a45dc9fd40a5b378869e14f4a4477cce8de0bc687cfa6b55f3ac62")
+	req.Header.Set("access_token", "key")
 
 	if err != nil {
 		fmt.Println("Erro ao fazer body", err)
